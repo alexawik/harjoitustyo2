@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Kysymyspankki</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>Kysymykset</h1>
+        
+        <ol>
+            <li th:each="kysymys : ${kysymykset}">
+                <span th:text="${kysymys.teksti}">Kysymys</span>
+            </li>
+        </ol>
+        
+        <form method="POST" action="/lisaa">
+            <input type="text" name="kurssi"/>
+            <input type="submit" value="Submit"/>
+        </form>
+        <form method="POST" action="/lisaa">
+            <input type="text" name="aihe"/>
+            <input type="submit" value="Submit"/>
+        </form>
+        <form method="POST" action="/lisaa">
+            <input type="text" name="teksti"/>
+            <input type="submit" value="Submit"/>
+        </form>
+    </body>
+</html>
