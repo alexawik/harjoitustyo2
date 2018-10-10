@@ -21,40 +21,54 @@ public class Main {
         if (System.getenv("PORT") != null) {
             Spark.port(Integer.valueOf(System.getenv("PORT")));
         }
-
-        List<Kysymys> kysymykset = new ArrayList<>();
         
         Spark.get("*", (req, res) -> {
+            List<Kysymys> kysymykset = new ArrayList<>();
             Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Kysymys");
+            ResultSet tulos = stmt.executeQuery();
             
-            PreparedStatement stmt = conn.prepareStatement("SELECT kysymysteksti FROM Kysymys");
+            while (tulos.next()) {
+                kysymykset.add(new Kysymys(tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
+            }
+            
+            conn.close();
+            
             HashMap map = new HashMap<>();
             map.put("kysymykset", kysymykset);
-
             
             return new ModelAndView(map, "index");
         }, new ThymeleafTemplateEngine());
         
         Spark.post("/lisaa", (req, res) -> {
             Connection conn = getConnection();
-            String kurssi = req.queryParams("kurssi");
-            String aihe = req.queryParams("aihe");
-            String teksti = req.queryParams("teksti");
-            kysymykset.add(new Kysymys(kurssi, aihe, teksti));
             
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Kysymys (kurssi, aihe, teksti) VALUES (?, ?, ?)");
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Kysymys (kurssi, aihe, kysymysteksti) VALUES (?, ?, ?)");
+            stmt.setString(1, req.queryParams("kurssi"));
+            stmt.setString(2, req.queryParams("aihe"));
+            stmt.setString(3, req.queryParams("kysymysteksti"));
+            
+            stmt.executeUpdate();
+            conn.close();
             res.redirect("/");
             
             return "";
         });
 
         Spark.get("*", (req, res) -> {
+            List<Kysymys> kysymykset = new ArrayList<>();            
             Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Kysymys");
+            ResultSet tulos = stmt.executeQuery();
             
-            PreparedStatement stmt = conn.prepareStatement("SELECT kysymysteksti FROM Kysymys");
+            while (tulos.next()) {
+                kysymykset.add(new Kysymys(tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
+            }
+            
+            conn.close();
+            
             HashMap map = new HashMap<>();
             map.put("kysymykset", kysymykset);
-
             
             return new ModelAndView(map, "index");
         }, new ThymeleafTemplateEngine());
@@ -67,6 +81,6 @@ public class Main {
             return DriverManager.getConnection(dbUrl);
         }
 
-        return DriverManager.getConnection("jdbc:sqlite:tk.db");
+        return DriverManager.getConnection("jdbc:sqlite:db/tk.db");
     }
 }

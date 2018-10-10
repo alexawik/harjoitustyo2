@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Kysymyspankki</title>
+        <meta charset="UTF-8"/>
+    </head>
+    <body>
+        <h1>Kysymykset</h1>
+        
+        <ul>
+            <li th:each="arvo : ${kysymykset}">
+                <span th:text="${arvo}">
+                    :D
+                </span>
+            </li>
+            
+        </ul>
+        
+        
+        <h2>Uusi kysymys</h2>
+        <form method="POST" action="/lisaa">
+            Kurssi:<br/>
+            <input type="text" name="kurssi"/><br/>
+            Aihe:<br/>
+            <input type="text" name="aihe"/><br/>
+            Kysymys:<br/>
+            <input type="text" name="kysymysteksti"/><br/>
+            <input type="submit" value="Lisää kysymys"/>
+        
+        </form>
+    </body>
+</html>
