@@ -40,7 +40,7 @@ public class Main {
             return new ModelAndView(map, "index");
         }, new ThymeleafTemplateEngine());
         
-        Spark.post("/lisaa", (req, res) -> {
+        Spark.post("/kysymykset", (req, res) -> {
             Connection conn = getConnection();
             
             PreparedStatement stmt = conn.prepareStatement("INSERT INTO Kysymys (kurssi, aihe, kysymysteksti) VALUES (?, ?, ?)");
@@ -72,6 +72,20 @@ public class Main {
             
             return new ModelAndView(map, "index");
         }, new ThymeleafTemplateEngine());
+        
+        Spark.post("/vastaukset", (req, res) -> {
+            Connection conn = getConnection();
+            
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (vastausteksti, oikein) VALUES (?, ?)");
+            stmt.setString(1, req.queryParams("kurssi"));
+            
+
+            stmt.executeUpdate();
+            conn.close();
+            res.redirect("/");
+            
+            return "";
+        });
  
     }
     
