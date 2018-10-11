@@ -97,7 +97,6 @@ public class Main {
 
             stmt.executeUpdate();
 
-            // sulje yhteys tietokantaan
             conn.close();
 
             res.redirect("/");

@@ -8,7 +8,7 @@ public class Kysymys {
     private String aihe;
     private String kysymysteksti;
     
-    public Kysymys(int id, String kurssi, String aihe, String kysymysteksti) {
+    public Kysymys(Integer id, String kurssi, String aihe, String kysymysteksti) {
         this.id = id;
         this.kurssi = kurssi;
         this.aihe = aihe;
