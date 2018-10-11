@@ -11,5 +11,9 @@ and open the template in the editor.
     </head>
     <body>
         <h1 th:text="${vastaukset}"></h1>
+        <form method="POST" action="/vastaukset">
+            <input type="text" name="vastausteksti"/><br/>
+            <input type="submit" value="Lisää vastaus"/>
+        </form>    
     </body>
 </html>
