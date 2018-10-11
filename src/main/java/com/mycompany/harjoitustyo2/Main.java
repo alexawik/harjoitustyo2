@@ -54,30 +54,14 @@ public class Main {
             
             return "";
         });
-
-        Spark.get("*", (req, res) -> {
-            List<Kysymys> kysymykset = new ArrayList<>();
-            Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Kysymys");
-            ResultSet tulos = stmt.executeQuery();
-            
-            while (tulos.next()) {
-                kysymykset.add(new Kysymys(tulos.getInt("id"), tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
-            }
-            
-            conn.close();
-            
-            HashMap map = new HashMap<>();
-            map.put("kysymykset", kysymykset);
-            
-            return new ModelAndView(map, "index");
-        }, new ThymeleafTemplateEngine());
         
         Spark.post("/vastaukset", (req, res) -> {
             Connection conn = getConnection();
             
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (vastausteksti, oikein) VALUES (?, 0)");
-            stmt.setString(1, req.queryParams("kurssi"));
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (vastausteksti, oikein, kysymys_id) VALUES (?, 0, ?)");
+            stmt.setString(1, req.queryParams("vastausteksti"));
+            stmt.setString(2, req.queryParams("oikein"));
+            stmt.setInt(3, Integer.parseInt(req.queryParams("kysymys_id")));
             
 
             stmt.executeUpdate();
@@ -104,19 +88,20 @@ public class Main {
         });
         
         Spark.post("/kyssari/:id", (req, res) -> {
-            List<Kysymys> kysymykset = new ArrayList<>();
+            List<Vastaus> vastaukset = new ArrayList<>();
             Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Kysymys WHERE id = ?");
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Vastaus WHERE kysymys_id = ?");
+            stmt.setInt(1, Integer.parseInt(req.params(":id")));
             ResultSet tulos = stmt.executeQuery();
             
             while (tulos.next()) {
-                kysymykset.add(new Kysymys(tulos.getInt("id"), tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
+                vastaukset.add(new Vastaus(tulos.getInt("id"), tulos.getString("vastausteksti"), tulos.getBoolean("oikein"), tulos.getInt("kysymys_id")));
             }
             
             conn.close();
             
             HashMap map = new HashMap<>();
-            map.put("kysymykset", kysymykset);
+            map.put("vastaukset", vastaukset);
             
             return new ModelAndView(map, "index2");
         }, new ThymeleafTemplateEngine());
