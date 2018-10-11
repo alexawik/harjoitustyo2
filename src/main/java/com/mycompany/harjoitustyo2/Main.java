@@ -103,7 +103,23 @@ public class Main {
             return "";
         });
         
-        
+        Spark.post("/kyssari/:id", (req, res) -> {
+            List<Kysymys> kysymykset = new ArrayList<>();
+            Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Kysymys WHERE id = ?");
+            ResultSet tulos = stmt.executeQuery();
+            
+            while (tulos.next()) {
+                kysymykset.add(new Kysymys(tulos.getInt("id"), tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
+            }
+            
+            conn.close();
+            
+            HashMap map = new HashMap<>();
+            map.put("kysymykset", kysymykset);
+            
+            return new ModelAndView(map, "index2");
+        }, new ThymeleafTemplateEngine());
  
     }
     
