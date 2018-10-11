@@ -29,7 +29,7 @@ public class Main {
             ResultSet tulos = stmt.executeQuery();
             
             while (tulos.next()) {
-                kysymykset.add(new Kysymys(tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
+                kysymykset.add(new Kysymys(tulos.getInt("id"), tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
             }
             
             conn.close();
@@ -56,13 +56,13 @@ public class Main {
         });
 
         Spark.get("*", (req, res) -> {
-            List<Kysymys> kysymykset = new ArrayList<>();            
+            List<Kysymys> kysymykset = new ArrayList<>();
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Kysymys");
             ResultSet tulos = stmt.executeQuery();
             
             while (tulos.next()) {
-                kysymykset.add(new Kysymys(tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
+                kysymykset.add(new Kysymys(tulos.getInt("id"), tulos.getString("kurssi"), tulos.getString("aihe"), tulos.getString("kysymysteksti")));
             }
             
             conn.close();
@@ -76,7 +76,7 @@ public class Main {
         Spark.post("/vastaukset", (req, res) -> {
             Connection conn = getConnection();
             
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (vastausteksti, oikein) VALUES (?, ?)");
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (vastausteksti, oikein) VALUES (?, 0)");
             stmt.setString(1, req.queryParams("kurssi"));
             
 
@@ -86,6 +86,25 @@ public class Main {
             
             return "";
         });
+        
+        Spark.post("/poista/:id", (req, res) -> {
+            
+            Connection conn = getConnection();
+            
+            PreparedStatement stmt
+                    = conn.prepareStatement("DELETE FROM Kysymys WHERE id = ?");
+            stmt.setInt(1, Integer.parseInt(req.params(":id")));
+
+            stmt.executeUpdate();
+
+            // sulje yhteys tietokantaan
+            conn.close();
+
+            res.redirect("/");
+            return "";
+        });
+        
+        
  
     }
     
