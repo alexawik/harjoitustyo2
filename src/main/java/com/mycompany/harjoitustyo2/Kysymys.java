@@ -32,7 +32,7 @@ public class Kysymys {
     
     @Override
     public String toString() {
-        return "Kurssi: " + this.kurssi + " Aihe: " + this.aihe + " Kysymys: " + this.kysymysteksti;
+        return "Kurssi: " + this.kurssi + ", aihe: " + this.aihe;
     }
     
 }

@@ -12,6 +12,7 @@
         <ul>
             <li th:each="vastaus: ${vastaukset}">
                 <span th:text="${vastaus.vastausteksti}"></span>
+                <span> | </span>
                 <span th:text="${vastaus.oikein}"></span>
                 <form method="POST" th:action="@{~/poistava/{id}(id=${vastaus.id})}">
                     <input type="submit" value="Poista"/>
@@ -19,13 +20,14 @@
             </li>
             
         </ul>
+        <h2> Luo uusi vastaus: </h2>
         <ul>
-            <li th:each="kysymys: ${kysymykset}">
+            <li th:each="kysymys: ${kysymykset}">              
                 <form method="POST" th:action="@{~/vastaukset/{id}(id=${kysymys.id})}">
                     <input type="text" name="vastausteksti"/><br/>
                     Oikein:
-                    <input name="oikein" type="checkbox" value="1">
-                    <input type="submit" value="Lisää vastaus"/>
+                    <input name="oikein" type="checkbox" value="1"><br/>
+                    <input type="submit" value="Lisää vastaus"/><br/>
                 </form>
             </li>
         </ul>    
