@@ -1,7 +1,6 @@
 
 package com.mycompany.harjoitustyo2;
 
-
 public class Kysymys {
     private Integer id;
     private String kurssi;
@@ -31,6 +30,7 @@ public class Kysymys {
         return kysymysteksti;
     }
     
+    @Override
     public String toString() {
         return "Kurssi: " + this.kurssi + " Aihe: " + this.aihe + " Kysymys: " + this.kysymysteksti;
     }

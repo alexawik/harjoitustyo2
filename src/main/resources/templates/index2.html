@@ -1,19 +1,34 @@
-<!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
+
 <html>
     <head>
         <title>Vastausvaihtoehdot</title>
         <meta charset="UTF-8">
     </head>
     <body>
-        <h1 th:text="${vastaukset}"></h1>
-        <form method="POST" action="/vastaukset">
-            <input type="text" name="vastausteksti"/><br/>
-            <input type="submit" value="Lisää vastaus"/>
-        </form>    
+        <h1 th:each="kysymys: ${kysymykset}"> 
+            <span th:text="${kysymys.kysymysteksti}"></span>
+        </h1>
+        
+        <ul>
+            <li th:each="vastaus: ${vastaukset}">
+                <span th:text="${vastaus.vastausteksti}"></span>
+                <span th:text="${vastaus.oikein}"></span>
+                <form method="POST" th:action="@{~/poistava/{id}(id=${vastaus.id})}">
+                    <input type="submit" value="Poista"/>
+                </form>
+            </li>
+            
+        </ul>
+        <ul>
+            <li th:each="kysymys: ${kysymykset}">
+                <form method="POST" th:action="@{~/vastaukset/{id}(id=${kysymys.id})}">
+                    <input type="text" name="vastausteksti"/><br/>
+                    Oikein:
+                    <input name="oikein" type="checkbox" value="1">
+                    <input type="submit" value="Lisää vastaus"/>
+                </form>
+            </li>
+        </ul>    
+        
     </body>
 </html>

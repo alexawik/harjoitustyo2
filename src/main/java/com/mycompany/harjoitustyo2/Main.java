@@ -40,6 +40,7 @@ public class Main {
             return new ModelAndView(map, "index");
         }, new ThymeleafTemplateEngine());
         
+        
         Spark.post("/kysymykset", (req, res) -> {
             Connection conn = getConnection();
             
@@ -55,13 +56,17 @@ public class Main {
             return "";
         });
         
-        Spark.post("/vastaukset", (req, res) -> {
+        Spark.post("/vastaukset/:id", (req, res) -> {
             Connection conn = getConnection();
             
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (vastausteksti, oikein, kysymys_id) VALUES (?, 0, ?)");
-            stmt.setString(1, req.queryParams("vastausteksti"));
-            stmt.setString(2, req.queryParams("oikein"));
-            stmt.setInt(3, Integer.parseInt(req.queryParams("kysymys_id")));
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (kysymys_id, vastausteksti, oikein) VALUES (?, ?, ?)");
+            stmt.setInt(1, Integer.parseInt(req.params(":id")));
+            stmt.setString(2, req.queryParams("vastausteksti"));
+            if (req.queryParams("oikein") != null) {
+                stmt.setBoolean(3, true);
+            } else {
+                stmt.setBoolean(3, false);
+            }
             
 
             stmt.executeUpdate();
@@ -70,6 +75,8 @@ public class Main {
             
             return "";
         });
+        
+        
         
         Spark.post("/poista/:id", (req, res) -> {
             
@@ -87,6 +94,21 @@ public class Main {
             return "";
         });
         
+        Spark.post("/poistava/:id", (req, res) -> {
+            Connection conn = getConnection(); 
+            
+            PreparedStatement stmt
+                    = conn.prepareStatement("DELETE FROM Vastaus WHERE id = ?");
+            stmt.setInt(1, Integer.parseInt(req.params(":id")));
+            
+            stmt.executeUpdate();
+            
+            conn.close();
+            
+            res.redirect("/");
+            return "";
+        });
+        
         Spark.post("/kyssari/:id", (req, res) -> {
             List<Vastaus> vastaukset = new ArrayList<>();
             Connection conn = getConnection();
@@ -95,13 +117,24 @@ public class Main {
             ResultSet tulos = stmt.executeQuery();
             
             while (tulos.next()) {
-                vastaukset.add(new Vastaus(tulos.getInt("id"), tulos.getString("vastausteksti"), tulos.getBoolean("oikein"), tulos.getInt("kysymys_id")));
+                vastaukset.add(new Vastaus(tulos.getInt("id"), tulos.getInt("kysymys_id"), tulos.getString("vastausteksti"), tulos.getBoolean("oikein")));
+            }
+            
+
+            List<Kysymys> kysymykset = new ArrayList<>();
+
+            PreparedStatement stmt2 = conn.prepareStatement("SELECT * FROM Kysymys WHERE id = ?");
+            stmt2.setInt(1, Integer.parseInt(req.params(":id")));
+            ResultSet tulos2 = stmt2.executeQuery();
+            
+            while (tulos2.next()) {
+                kysymykset.add(new Kysymys(tulos2.getInt("id"), tulos2.getString("kurssi"), tulos2.getString("aihe"), tulos2.getString("kysymysteksti")));
             }
             
             conn.close();
-            
             HashMap map = new HashMap<>();
             map.put("vastaukset", vastaukset);
+            map.put("kysymykset", kysymykset);
             
             return new ModelAndView(map, "index2");
         }, new ThymeleafTemplateEngine());
