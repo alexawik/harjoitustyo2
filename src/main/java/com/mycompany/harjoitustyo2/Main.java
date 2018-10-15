@@ -18,10 +18,12 @@ public class Main {
             Spark.port(Integer.valueOf(System.getenv("PORT")));
         }
         
-        Spark.get("*", (req, res) -> {
+        Spark.get("/", (req, res) -> {
             List<Kysymys> kysymykset = new ArrayList<>();
             Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Kysymys");
+            
+            PreparedStatement stmt 
+                    = conn.prepareStatement("SELECT * FROM Kysymys");
             ResultSet tulos = stmt.executeQuery();
             
             while (tulos.next()) {
@@ -35,7 +37,6 @@ public class Main {
             
             return new ModelAndView(map, "index");
         }, new ThymeleafTemplateEngine());
-        
         
         Spark.post("/kysymykset", (req, res) -> {
             Connection conn = getConnection();
@@ -52,10 +53,43 @@ public class Main {
             return "";
         });
         
+               
+        Spark.get("/:id", (req, res) -> {
+            List<Vastaus> vastaukset = new ArrayList<>();
+            Connection conn = getConnection();
+            PreparedStatement stmt 
+                    = conn.prepareStatement("SELECT * FROM Vastaus WHERE kysymys_id = ?");
+            stmt.setInt(1, Integer.parseInt(req.params(":id")));
+            ResultSet tulos = stmt.executeQuery();
+            
+            while (tulos.next()) {
+                vastaukset.add(new Vastaus(tulos.getInt("id"), tulos.getInt("kysymys_id"), tulos.getString("vastausteksti"), tulos.getBoolean("oikein")));
+            }
+            
+            List<Kysymys> kysymykset = new ArrayList<>();
+
+            PreparedStatement stmt2 
+                    = conn.prepareStatement("SELECT * FROM Kysymys WHERE id = ?");
+            stmt2.setInt(1, Integer.parseInt(req.params(":id")));
+            ResultSet tulos2 = stmt2.executeQuery();
+            
+            while (tulos2.next()) {
+                kysymykset.add(new Kysymys(tulos2.getInt("id"), tulos2.getString("kurssi"), tulos2.getString("aihe"), tulos2.getString("kysymysteksti")));
+            }
+            
+            conn.close();
+            HashMap map = new HashMap<>();
+            map.put("vastaukset", vastaukset);
+            map.put("kysymykset", kysymykset);
+
+            return new ModelAndView(map, "index2");
+        }, new ThymeleafTemplateEngine());
+        
         Spark.post("/vastaukset/:id", (req, res) -> {
             Connection conn = getConnection();
             
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO Vastaus (kysymys_id, vastausteksti, oikein) VALUES (?, ?, ?)");
+            PreparedStatement stmt 
+                    = conn.prepareStatement("INSERT INTO Vastaus (kysymys_id, vastausteksti, oikein) VALUES (?, ?, ?)");
             stmt.setInt(1, Integer.parseInt(req.params(":id")));
             stmt.setString(2, req.queryParams("vastausteksti"));
             if (req.queryParams("oikein") != null) {
@@ -64,10 +98,9 @@ public class Main {
                 stmt.setBoolean(3, false);
             }
             
-
             stmt.executeUpdate();
             conn.close();
-            res.redirect("/");
+            res.redirect("/" + Integer.parseInt(req.params(":id")));
             
             return "";
         });
@@ -91,17 +124,26 @@ public class Main {
         });
         
         Spark.post("/poistava/:id", (req, res) -> {
+            int kysymys_id = 0;
             Connection conn = getConnection(); 
-            
-            PreparedStatement stmt
-                    = conn.prepareStatement("DELETE FROM Vastaus WHERE id = ?");
+            PreparedStatement stmt 
+                    = conn.prepareStatement("SELECT * FROM Vastaus WHERE id = ?");
             stmt.setInt(1, Integer.parseInt(req.params(":id")));
+            ResultSet tulos = stmt.executeQuery();
             
-            stmt.executeUpdate();
+            while (tulos.next()) {
+                kysymys_id = tulos.getInt("kysymys_id");
+            }
+            
+            PreparedStatement stmt2
+                    = conn.prepareStatement("DELETE FROM Vastaus WHERE id = ?");
+            stmt2.setInt(1, Integer.parseInt(req.params(":id")));
+            
+            stmt2.executeUpdate();
             
             conn.close();
             
-            res.redirect("/");
+            res.redirect("/" + kysymys_id);
             return "";
         });
         
@@ -135,6 +177,13 @@ public class Main {
             return new ModelAndView(map, "index2");
         }, new ThymeleafTemplateEngine());
  
+        Spark.post("/palautus", (req, res) -> {
+            Connection conn = getConnection();
+            conn.close();
+            res.redirect("/");
+            
+            return "";
+        });
     }
     
     public static Connection getConnection() throws Exception {
