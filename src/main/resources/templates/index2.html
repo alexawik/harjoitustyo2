@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-html>
+<html>
     <head>
         <title>Vastausvaihtoehdot</title>
         <meta charset="UTF-8">
@@ -25,7 +25,8 @@ html>
         <ul>
             <li th:each="kysymys: ${kysymykset}">              
                 <form method="POST" th:action="@{~/vastaukset/{id}(id=${kysymys.id})}">
-                    <input type="text" name="vastausteksti"/><br/>
+                    <input type="text" name="vastausteksti"
+                           required/><br/>
                     Oikein:
                     <input name="oikein" type="checkbox" value="1"><br/>
                     <input type="submit" value="Lisää vastaus"/><br/>

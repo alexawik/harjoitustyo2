@@ -29,13 +29,18 @@
         <h2> Luo uusi kysymys: </h2>
         <form method="POST" action="/kysymykset">
             Kurssi:<br/>
-            <input type="text" name="kurssi"/><br/>
+            <input type="text" name="kurssi"
+                   required/><br/>
+            
             Aihe:<br/>
-            <input type="text" name="aihe"/><br/>
+            <input type="text" name="aihe"
+                   required/><br/>
             Kysymys:<br/>
-            <input type="text" name="kysymysteksti"/><br/>
+            <input type="text" name="kysymysteksti"
+                   required/><br/>
             <p>    </p>
             <input type="submit" value="Lisää kysymys"/>
         </form>
     </body>
 </html>
+

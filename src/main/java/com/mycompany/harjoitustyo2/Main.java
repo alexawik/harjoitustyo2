@@ -1,4 +1,3 @@
-
 package com.mycompany.harjoitustyo2;
 
 import java.util.ArrayList;
@@ -107,16 +106,21 @@ public class Main {
         
         
         
-        Spark.post("/poista/:id", (req, res) -> {
-            
+        Spark.post("/poista/:id", (req, res) -> {            
             Connection conn = getConnection();
             
             PreparedStatement stmt
-                    = conn.prepareStatement("DELETE FROM Kysymys WHERE id = ?");
+                    = conn.prepareStatement("DELETE FROM Vastaus WHERE kysymys_id = ?");
             stmt.setInt(1, Integer.parseInt(req.params(":id")));
-
             stmt.executeUpdate();
+            
+            PreparedStatement stmt2
+                    = conn.prepareStatement("DELETE FROM Kysymys WHERE id = ?");
+            stmt2.setInt(1, Integer.parseInt(req.params(":id")));
 
+            stmt2.executeUpdate();
+
+            
             conn.close();
 
             res.redirect("/");
